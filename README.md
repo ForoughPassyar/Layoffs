@@ -228,6 +228,7 @@ AND t2.industry IS NOT NULL;
 
     
 -- Bally's was the only one without a populated row to populate this null values
+
 SELECT *
 FROM new_schema.layoffs_staging
 WHERE industry IS NULL 
@@ -238,6 +239,7 @@ ORDER BY industry;
 
 
 -- Crypto has multiple variations. Needs standardization
+
 SELECT DISTINCT industry
 FROM new_schema.layoffs_staging
 ORDER BY industry;
@@ -264,6 +266,7 @@ FROM new_schema.layoffs_staging;
 
 
 -- We have  "United States" and some "United States." with a period at the end. Needs standardization
+
 SELECT DISTINCT country
 FROM new_schema.layoffs_staging
 ORDER BY country;
@@ -277,6 +280,7 @@ SET country = TRIM(TRAILING '.' FROM country);
 
 
 -- now if we run this again it is fixed
+
 SELECT DISTINCT country
 FROM new_schema.layoffs_staging
 ORDER BY country;
@@ -285,14 +289,17 @@ ORDER BY country;
 
 
 -- Here we fix the date columns:
+
 SELECT *
 FROM new_schema.layoffs_staging;
 
 
 
 
--- I couldn't use the str_to_date function alone since  values in the date column had duplicates
+-- I couldn't use the str_to_date function alone since  values in the date column had duplicates.
+
 -- So I add the REGEXP function to standardize the format of the dates.
+
 
 UPDATE layoffs_staging
 SET `date` = STR_TO_DATE(`date`,'%m/%d/%Y')
@@ -309,7 +316,6 @@ MODIFY COLUMN `date` DATE;
 
 SELECT *
 FROM new_schema.layoffs_staging;
-
 
 
 
@@ -377,11 +383,11 @@ WHERE percentage_laid_off = 1
 ORDER BY funds_raised_millions DESC;
 
 -- So here Alex did a different analysis than I did, since his functions weren't effective in my analysis. 
--- So I am not getting necessarily the same results that he got
+-- So I am not getting necessarily the same results that he got.
 
 
 
--- companies with the largest layoffs
+-- companies with the largest layoffs.
 
 SELECT company, total_laid_off
 FROM new_schema.layoffs_staging
@@ -391,7 +397,8 @@ LIMIT 5;
 
 
 
--- Companies with the most total Layoffs
+-- Companies with the most total Layoffs.
+
 SELECT company, SUM(total_laid_off)
 FROM new_schema.layoffs_staging
 GROUP BY company
@@ -401,6 +408,7 @@ LIMIT 10;
 
 
 -- By location
+
 SELECT location, SUM(total_laid_off)
 FROM new_schema.layoffs_staging
 GROUP BY location
@@ -409,7 +417,7 @@ LIMIT 10;
 
 
 
--- Total in the past three years or in the dataset
+-- Total in the past three years or in the dataset.
 
 SELECT country, SUM(total_laid_off) 
 FROM new_schema.layoffs_staging
@@ -439,7 +447,8 @@ ORDER BY 2 DESC;
 
 
 
--- Most layoffs per year and ranking using CTE
+-- Most layoffs per year and ranking using CTE.
+
 WITH company_year AS
 (
 	SELECT company, YEAR(date) AS years, SUM(total_laid_off) AS total_laid_off
@@ -458,7 +467,8 @@ ORDER BY years ASC, total_laid_off DESC;
 
 
 
--- ROLLING Total of Layoffs Per Month
+-- ROLLING Total of Layoffs Per Month.
+
 SELECT SUBSTRING(date,1,7) as dates, SUM(total_laid_off) AS total_laid_off
 FROM layoffs_staging
 GROUP BY dates
@@ -468,7 +478,9 @@ ORDER BY dates ASC;
 
 
 
---  We are going to use this in a CTE now
+--  We are going to use this in a CTE now.
+
+
 WITH DATE_CTE AS
 (
 SELECT SUBSTRING(date,1,7) as dates, SUM(total_laid_off) AS total_laid_off
